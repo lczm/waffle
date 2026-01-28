@@ -1,4 +1,20 @@
 use logos::Logos;
+use miette::{Diagnostic, NamedSource, SourceSpan};
+use thiserror::Error;
+
+#[derive(Error, Debug, Diagnostic)]
+#[error("Invalid token found!")]
+#[diagnostic(
+    code(waffle::lex_error),
+    help("Check if this is a character that you intended to type or if it is supported")
+)]
+pub struct LexError {
+    #[source_code]
+    pub src: NamedSource<String>,
+
+    #[label("This character is not recognized")]
+    pub bad_token_span: SourceSpan,
+}
 
 #[derive(Logos, Debug, PartialEq)]
 #[logos(skip r"[ \t\n\f]+")]
@@ -38,14 +54,24 @@ enum Token {
     String(String),
 }
 
-fn main() {
-    let source = "(defun add (a b) (+ a b))";
-    let mut lexer = Token::lexer(source);
+fn main() -> miette::Result<()> {
+    let source = "(defun add (a b) (+ a; b))".to_string();
+    let mut lexer = Token::lexer(&source);
 
     while let Some(token) = lexer.next() {
         match token {
             Ok(t) => println!("Token: {:?}", t),
-            Err(_) => eprintln!("Unknown token at {:?}", lexer.span()),
+            Err(_) => {
+                let span = lexer.span();
+                let err = LexError {
+                    src: NamedSource::new("error", source.clone()),
+                    bad_token_span: (span.start, span.end - span.start).into(),
+                };
+
+                return Err(err.into());
+            }
         }
     }
+
+    Ok(())
 }
