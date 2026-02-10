@@ -221,6 +221,27 @@ impl<'a> Parser<'a> {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum Value {
+    Integer(i64),
+    Float(f64),
+    Boolean(bool),
+    String(String),
+    Unit,
+}
+
+impl std::fmt::Display for Value {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Value::Integer(i) => write!(f, "{}", i),
+            Value::Float(n) => write!(f, "{}", n),
+            Value::Boolean(b) => write!(f, "{}", b),
+            Value::String(s) => write!(f, "\"{}\"", s),
+            Value::Unit => write!(f, "()"),
+        }
+    }
+}
+
 fn main() -> miette::Result<()> {
     let source = "(defun add (a b) (+ a b))".to_string();
     let invalid_source = "(defun add (a b) (+ a; b))".to_string();
