@@ -242,6 +242,40 @@ impl std::fmt::Display for Value {
     }
 }
 
+#[derive(Debug, Clone)]
+pub enum OpCode {
+    Constant(usize),
+    // basic operators
+    Add,
+    Sub,
+    Mul,
+    Div,
+    // for the vm stack
+    Pop,
+    // convenience
+    Print,
+}
+
+// a chunk holds a list of the opcodes and the values
+#[derive(Debug, Default)]
+pub struct Chunk {
+    pub code: Vec<OpCode>,
+    pub constants: Vec<Value>,
+}
+
+impl Chunk {
+    pub fn write(&mut self, op: OpCode) {
+        self.code.push(op);
+    }
+
+    // when adding a constant via this method
+    // get back the index where the value lives
+    pub fn add_constant(&mut self, value: Value) -> usize {
+        self.constants.push(value);
+        self.constants.len() - 1
+    }
+}
+
 fn main() -> miette::Result<()> {
     let source = "(defun add (a b) (+ a b))".to_string();
     let invalid_source = "(defun add (a b) (+ a; b))".to_string();
