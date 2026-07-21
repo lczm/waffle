@@ -233,10 +233,10 @@ pub enum Value {
 impl std::fmt::Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Value::Integer(i) => write!(f, "{}", i),
-            Value::Float(n) => write!(f, "{}", n),
-            Value::Boolean(b) => write!(f, "{}", b),
-            Value::String(s) => write!(f, "\"{}\"", s),
+            Value::Integer(i) => write!(f, "{i}"),
+            Value::Float(n) => write!(f, "{n}"),
+            Value::Boolean(b) => write!(f, "{b}"),
+            Value::String(s) => write!(f, "\"{s}\""),
             Value::Unit => write!(f, "()"),
         }
     }
