@@ -66,7 +66,7 @@ fn main() -> miette::Result<()> {
     let mut parser = Parser::new(&source);
     while parser.has_more() {
         match parser.parse_expr() {
-            Ok(expr) => println!("Parsed: {:#?}", expr),
+            Ok(expr) => println!("Parsed: {expr:#?}"),
             // first error instant break
             // TODO: maybe in the future can do some sort of recovery
             Err(e) => {
