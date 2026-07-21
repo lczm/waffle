@@ -39,6 +39,19 @@ pub enum ParseError {
         expected: String,
     },
 
+    #[error("Unexpected closing parenthesis")]
+    #[diagnostic(
+        code(waffle::unexpected_closing_parenthesis),
+        help("Remove this ')' or add a matching '(' before it")
+    )]
+    UnexpectedClosingParen {
+        #[source_code]
+        src: NamedSource<String>,
+
+        #[label("This ')' has no matching '('")]
+        span: SourceSpan,
+    },
+
     #[error("Unexpected end of file")]
     #[diagnostic(code(waffle::unexpected_token))]
     UnexpectedEOF {

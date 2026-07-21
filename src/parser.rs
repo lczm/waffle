@@ -48,6 +48,13 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn make_unexpected_closing_paren_error(&self, span: SourceSpan) -> ParseError {
+        ParseError::UnexpectedClosingParen {
+            src: NamedSource::new("input", self.src.to_string()),
+            span,
+        }
+    }
+
     fn make_eof_error(&self) -> ParseError {
         let len = self.src.len();
         ParseError::UnexpectedEOF {
@@ -103,12 +110,7 @@ impl<'a> Parser<'a> {
 
             Token::RParen => {
                 let (_, span) = self.iter.next().unwrap();
-                Err(self
-                    .make_error(
-                        span.into(),
-                        "Unexpected closing brace ')' without the opening brace",
-                    )
-                    .into())
+                Err(self.make_unexpected_closing_paren_error(span.into()).into())
             }
         }
     }
@@ -137,5 +139,20 @@ impl<'a> Parser<'a> {
         }
 
         Ok(Expr::List(items))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn error_unmatched_closing_parenthesis() {
+        let mut parser = Parser::new(")");
+
+        assert!(matches!(
+            parser.parse_expr(),
+            Err(AppError::Parser(ParseError::UnexpectedClosingParen { .. }))
+        ));
     }
 }
