@@ -61,17 +61,14 @@ impl Chunk {
 
 fn main() -> miette::Result<()> {
     let source = "(defun add (a b) (+ a b))".to_string();
-    let invalid_source = "(defun add (a b) (+ a; b))".to_string();
+    // let invalid_source = "(defun add (a b) (+ a; b))".to_string();
 
     let mut parser = Parser::new(&source);
     while parser.has_more() {
         match parser.parse_expr() {
             Ok(expr) => println!("Parsed: {expr:#?}"),
-            // first error instant break
-            // TODO: maybe in the future can do some sort of recovery
-            Err(e) => {
-                println!("{:?}", miette::Report::new(e));
-                break;
+            Err(error) => {
+                return Err(miette::Report::new(error));
             }
         }
     }
