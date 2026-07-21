@@ -32,11 +32,33 @@ pub(crate) enum Token {
     #[regex(r"[a-zA-Z!$%&*+-./:<=>?@^_~][a-zA-Z0-9!$%&*+-./:<=>?@^_~]*", |lex| lex.slice().to_string())]
     Symbol(String),
 
-    #[regex(r#""([^"\\]|\\.)*""#, |lex| {
-        let s = lex.slice();
-        s[1..s.len()-1].to_string()
-    })]
+    #[regex(r#""([^"\\]|\\.)*""#, decode_string)]
     String(String),
+}
+
+fn decode_string(lex: &mut logos::Lexer<'_, Token>) -> Option<String> {
+    let slice = lex.slice();
+    let mut chars = slice[1..slice.len() - 1].chars();
+    let mut decoded = String::with_capacity(slice.len() - 2);
+
+    while let Some(character) = chars.next() {
+        if character != '\\' {
+            decoded.push(character);
+            continue;
+        }
+
+        decoded.push(match chars.next()? {
+            '"' => '"',
+            '\\' => '\\',
+            'n' => '\n',
+            'r' => '\r',
+            't' => '\t',
+            '0' => '\0',
+            _ => return None,
+        });
+    }
+
+    Some(decoded)
 }
 
 #[cfg(test)]
@@ -86,5 +108,22 @@ mod tests {
             lex("\"first line\r\nsecond line\""),
             Ok(vec![Token::String("first line\r\nsecond line".into())])
         );
+    }
+
+    #[test]
+    fn decodes_string_escape_sequences() {
+        let source = r#""quote: \"hi\", slash: \\, newline: \n, carriage: \r, tab: \t, null: \0""#;
+
+        assert_eq!(
+            lex(source),
+            Ok(vec![Token::String(
+                "quote: \"hi\", slash: \\, newline: \n, carriage: \r, tab: \t, null: \0".into(),
+            )])
+        );
+    }
+
+    #[test]
+    fn rejects_unknown_string_escape_sequences() {
+        assert_eq!(lex(r#""unknown: \q""#), Err(()));
     }
 }
