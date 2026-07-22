@@ -1,4 +1,4 @@
-use crate::parser::Parser;
+use crate::parser::{Expr, Parser};
 
 mod errors;
 mod lexer;
@@ -64,13 +64,15 @@ fn main() -> miette::Result<()> {
     // let invalid_source = "(defun add (a b) (+ a; b))".to_string();
 
     let mut parser = Parser::new(&source);
-    while parser.has_more() {
-        match parser.parse_expr() {
-            Ok(expr) => println!("Parsed: {expr:#?}"),
-            Err(error) => {
-                return Err(miette::Report::new(error));
-            }
-        }
+    // a program is a list of expressions
+    // parse each of them at once
+    let expressions: Vec<Expr> =
+        std::iter::from_fn(|| parser.has_more().then(|| parser.parse_expr()))
+            .collect::<Result<Vec<Expr>, _>>()
+            .map_err(miette::Report::new)?;
+
+    for expression in expressions {
+        println!("Parsed: {expression:#?}");
     }
 
     Ok(())
