@@ -59,6 +59,12 @@ impl Chunk {
     }
 }
 
+pub struct Function {
+    pub name: String,
+    pub arity: usize,
+    pub chunk: Chunk,
+}
+
 fn main() -> miette::Result<()> {
     let source = "(defun add (a b) (+ a b))".to_string();
     // let invalid_source = "(defun add (a b) (+ a; b))".to_string();
