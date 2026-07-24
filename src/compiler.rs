@@ -172,7 +172,7 @@ mod tests {
         assert!(matches!(
             chunk.code.as_slice(),
             [
-                OpCode::Constant(0), // 1
+                OpCode::Constant(0), // 10
                 OpCode::Constant(1), // 2
                 OpCode::Sub
             ]
@@ -189,7 +189,7 @@ mod tests {
         assert!(matches!(
             chunk.code.as_slice(),
             [
-                OpCode::Constant(0), // 1
+                OpCode::Constant(0), // 10
                 OpCode::Constant(1), // 2
                 OpCode::Mul
             ]
@@ -206,9 +206,30 @@ mod tests {
         assert!(matches!(
             chunk.code.as_slice(),
             [
+                OpCode::Constant(0), // 10
+                OpCode::Constant(1), // 5
+                OpCode::Div
+            ]
+        ));
+    }
+
+    #[test]
+    fn compiles_nested_simple_calculations() {
+        let source = "(+ 1 (* 2 5))";
+        let mut compiler = Compiler::new();
+        let chunk = compiler.compile(&parse_source(source)).unwrap();
+
+        assert_eq!(chunk.constants, vec![Integer(1), Integer(2), Integer(5)]);
+        assert!(matches!(
+            chunk.code.as_slice(),
+            [
                 OpCode::Constant(0), // 1
                 OpCode::Constant(1), // 2
-                OpCode::Div
+                OpCode::Constant(2), // 5
+                // the multiply will do pop 2 * 5 and push 10
+                OpCode::Mul,
+                // then it'll be 1 + 10
+                OpCode::Add
             ]
         ));
     }
