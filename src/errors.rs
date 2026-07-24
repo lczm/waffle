@@ -76,5 +76,9 @@ pub enum CompileError {
     UnknownSymbol,
 
     #[error("Incorrect argument count")]
-    IncorrectArgumentCount,
+    IncorrectArgumentCount {
+        operator: String,
+        expected_count: usize,
+        parsed_count: usize,
+    },
 }
