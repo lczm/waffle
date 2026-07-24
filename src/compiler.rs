@@ -136,16 +136,20 @@ mod tests {
 
     use super::Compiler;
 
-    #[test]
-    fn compiles_simple_addition() {
-        let mut parser = Parser::new("(+ 1 2)");
+    fn parse_source(source: &str) -> Vec<Expr> {
+        let mut parser = Parser::new(source);
         let expressions: Vec<Expr> =
             std::iter::from_fn(|| parser.has_more().then(|| parser.parse_expr()))
                 .collect::<Result<Vec<Expr>, _>>()
                 .unwrap();
+        expressions
+    }
 
+    #[test]
+    fn compiles_simple_addition() {
+        let source = "(+ 1 2)";
         let mut compiler = Compiler::new();
-        let chunk = compiler.compile(&expressions).unwrap();
+        let chunk = compiler.compile(&parse_source(source)).unwrap();
 
         assert_eq!(chunk.constants, vec![Integer(1), Integer(2)]);
         assert!(matches!(
