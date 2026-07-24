@@ -54,7 +54,7 @@ impl Compiler {
                 let (head, arguments) = exprs.split_first().ok_or(CompileError::EmptyList)?;
 
                 match head {
-                    Expr::Symbol(name) if name == "+" => {
+                    Expr::Symbol(operator) if operator == "+" => {
                         let expected_argument_count = 2;
                         let parsed_argument_count = arguments.len();
                         if expected_argument_count != parsed_argument_count {
@@ -68,6 +68,54 @@ impl Compiler {
                             self.compile_expr(argument, chunk)?;
                         }
                         chunk.write(crate::OpCode::Add);
+                        Ok(())
+                    }
+                    Expr::Symbol(operator) if operator == "-" => {
+                        let expected_argument_count = 2;
+                        let parsed_argument_count = arguments.len();
+                        if expected_argument_count != parsed_argument_count {
+                            return Err(CompileError::IncorrectArgumentCount {
+                                operator: "-".into(),
+                                expected_count: expected_argument_count,
+                                parsed_count: parsed_argument_count,
+                            });
+                        }
+                        for argument in arguments {
+                            self.compile_expr(argument, chunk)?;
+                        }
+                        chunk.write(crate::OpCode::Sub);
+                        Ok(())
+                    }
+                    Expr::Symbol(operator) if operator == "*" => {
+                        let expected_argument_count = 2;
+                        let parsed_argument_count = arguments.len();
+                        if expected_argument_count != parsed_argument_count {
+                            return Err(CompileError::IncorrectArgumentCount {
+                                operator: "*".into(),
+                                expected_count: expected_argument_count,
+                                parsed_count: parsed_argument_count,
+                            });
+                        }
+                        for argument in arguments {
+                            self.compile_expr(argument, chunk)?;
+                        }
+                        chunk.write(crate::OpCode::Mul);
+                        Ok(())
+                    }
+                    Expr::Symbol(operator) if operator == "/" => {
+                        let expected_argument_count = 2;
+                        let parsed_argument_count = arguments.len();
+                        if expected_argument_count != parsed_argument_count {
+                            return Err(CompileError::IncorrectArgumentCount {
+                                operator: "/".into(),
+                                expected_count: expected_argument_count,
+                                parsed_count: parsed_argument_count,
+                            });
+                        }
+                        for argument in arguments {
+                            self.compile_expr(argument, chunk)?;
+                        }
+                        chunk.write(crate::OpCode::Div);
                         Ok(())
                     }
                     Expr::Symbol(_) => Err(CompileError::UnknownSymbol),
