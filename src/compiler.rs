@@ -1,9 +1,9 @@
 use crate::{
-    errors::CompileError,
-    parser::Expr,
     Chunk,
     OpCode::Constant,
     Value::{Boolean, Float, Integer, String},
+    errors::CompileError,
+    parser::Expr,
 };
 
 // todo if there are more states to be stored in the compiler later on
@@ -75,5 +75,38 @@ impl Compiler {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        OpCode,
+        Value::Integer,
+        parser::{Expr, Parser},
+    };
+
+    use super::Compiler;
+
+    #[test]
+    fn compiles_simple_addition() {
+        let mut parser = Parser::new("(+ 1 2)");
+        let expressions: Vec<Expr> =
+            std::iter::from_fn(|| parser.has_more().then(|| parser.parse_expr()))
+                .collect::<Result<Vec<Expr>, _>>()
+                .unwrap();
+
+        let mut compiler = Compiler::new();
+        let chunk = compiler.compile(&expressions).unwrap();
+
+        assert_eq!(chunk.constants, vec![Integer(1), Integer(2)]);
+        assert!(matches!(
+            chunk.code.as_slice(),
+            [
+                OpCode::Constant(0), // 1
+                OpCode::Constant(1), // 2
+                OpCode::Add
+            ]
+        ));
     }
 }
