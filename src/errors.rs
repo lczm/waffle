@@ -75,7 +75,11 @@ pub enum CompileError {
     #[error("Unknown symbol")]
     UnknownSymbol,
 
-    #[error("Incorrect argument count")]
+    #[error("operator {operator} expected {expected_count} arguments, but received {parsed_count}")]
+    #[diagnostic(
+        code(waffle::incorrect_argument_count),
+        help("Provide exactly {expected_count} arguments to `{operator}`")
+    )]
     IncorrectArgumentCount {
         operator: String,
         expected_count: usize,
