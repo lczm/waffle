@@ -146,7 +146,7 @@ mod tests {
     }
 
     #[test]
-    fn compiles_simple_addition() {
+    fn compiles_simple_add() {
         let source = "(+ 1 2)";
         let mut compiler = Compiler::new();
         let chunk = compiler.compile(&parse_source(source)).unwrap();
@@ -158,6 +158,57 @@ mod tests {
                 OpCode::Constant(0), // 1
                 OpCode::Constant(1), // 2
                 OpCode::Add
+            ]
+        ));
+    }
+
+    #[test]
+    fn compiles_simple_sub() {
+        let source = "(- 10 2)";
+        let mut compiler = Compiler::new();
+        let chunk = compiler.compile(&parse_source(source)).unwrap();
+
+        assert_eq!(chunk.constants, vec![Integer(10), Integer(2)]);
+        assert!(matches!(
+            chunk.code.as_slice(),
+            [
+                OpCode::Constant(0), // 1
+                OpCode::Constant(1), // 2
+                OpCode::Sub
+            ]
+        ));
+    }
+
+    #[test]
+    fn compiles_simple_mul() {
+        let source = "(* 10 2)";
+        let mut compiler = Compiler::new();
+        let chunk = compiler.compile(&parse_source(source)).unwrap();
+
+        assert_eq!(chunk.constants, vec![Integer(10), Integer(2)]);
+        assert!(matches!(
+            chunk.code.as_slice(),
+            [
+                OpCode::Constant(0), // 1
+                OpCode::Constant(1), // 2
+                OpCode::Mul
+            ]
+        ));
+    }
+
+    #[test]
+    fn compiles_simple_div() {
+        let source = "(/ 10 5)";
+        let mut compiler = Compiler::new();
+        let chunk = compiler.compile(&parse_source(source)).unwrap();
+
+        assert_eq!(chunk.constants, vec![Integer(10), Integer(5)]);
+        assert!(matches!(
+            chunk.code.as_slice(),
+            [
+                OpCode::Constant(0), // 1
+                OpCode::Constant(1), // 2
+                OpCode::Div
             ]
         ));
     }
