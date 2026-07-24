@@ -1,5 +1,7 @@
+use crate::compiler::Compiler;
 use crate::parser::{Expr, Parser};
 
+mod compiler;
 mod errors;
 mod lexer;
 mod parser;
@@ -59,15 +61,26 @@ impl Chunk {
     }
 }
 
+// a function contains a chunk and various information about the function
+// like the name and number of arguments
 pub struct Function {
     pub name: String,
     pub arity: usize,
     pub chunk: Chunk,
 }
 
+// a file compiles to a module, which is just a list of functions
+// and some entry point
+pub struct Module {
+    pub functions: Vec<Function>,
+    // index into functions for where the program starts
+    pub entry_point: usize,
+}
+
 fn main() -> miette::Result<()> {
-    let source = "(defun add (a b) (+ a b))".to_string();
-    // let invalid_source = "(defun add (a b) (+ a; b))".to_string();
+    let source = "(+ 1 2)".to_string();
+    // let function_source = "(defun add (a b) (+ a b))".to_string();
+    // let function_invalid_source = "(defun add (a b) (+ a; b))".to_string();
 
     let mut parser = Parser::new(&source);
     // a program is a list of expressions
@@ -77,9 +90,11 @@ fn main() -> miette::Result<()> {
             .collect::<Result<Vec<Expr>, _>>()
             .map_err(miette::Report::new)?;
 
-    for expression in expressions {
-        println!("Parsed: {expression:#?}");
-    }
+    // for expression in expressions {
+    //     println!("Parsed: {expression:#?}");
+    // }
+
+    let compiler = Compiler::new();
 
     Ok(())
 }
