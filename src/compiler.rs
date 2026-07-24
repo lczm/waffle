@@ -1,9 +1,9 @@
 use crate::{
+    errors::CompileError,
+    parser::Expr,
     Chunk,
     OpCode::Constant,
     Value::{Boolean, Float, Integer, String},
-    errors::CompileError,
-    parser::Expr,
 };
 
 // todo if there are more states to be stored in the compiler later on

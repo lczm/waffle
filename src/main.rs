@@ -77,6 +77,29 @@ pub struct Module {
     pub entry_point: usize,
 }
 
+fn print_chunk(chunk: &Chunk) {
+    println!("== bytecode ==");
+
+    for (chunk_index, opcode) in chunk.code.iter().enumerate() {
+        print!("{chunk_index:04} ");
+
+        match opcode {
+            OpCode::Constant(constants_index) => match chunk.constants.get(*constants_index) {
+                Some(value) => println!("CONSTANT {constants_index:04} {value}"),
+                None => {
+                    println!("CONSTANT {constants_index:04} <invalid constant constants_index>")
+                }
+            },
+            OpCode::Add => println!("ADD"),
+            OpCode::Sub => println!("SUB"),
+            OpCode::Mul => println!("MUL"),
+            OpCode::Div => println!("DIV"),
+            OpCode::Pop => println!("POP"),
+            OpCode::Print => println!("PRINT"),
+        }
+    }
+}
+
 fn main() -> miette::Result<()> {
     let source = "(+ 1 2)".to_string();
     // let function_source = "(defun add (a b) (+ a b))".to_string();
@@ -94,7 +117,11 @@ fn main() -> miette::Result<()> {
     //     println!("Parsed: {expression:#?}");
     // }
 
-    let compiler = Compiler::new();
+    let mut compiler = Compiler::new();
+    let chunk = compiler
+        .compile(&expressions)
+        .map_err(miette::Report::new)?;
+    print_chunk(&chunk);
 
     Ok(())
 }
