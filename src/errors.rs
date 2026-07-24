@@ -10,6 +10,10 @@ pub enum AppError {
     #[error(transparent)]
     #[diagnostic(transparent)]
     Parser(#[from] ParseError),
+
+    #[error(transparent)]
+    #[diagnostic(transparent)]
+    Compiler(#[from] CompileError),
 }
 
 #[derive(Error, Debug, Diagnostic)]
@@ -61,4 +65,16 @@ pub enum ParseError {
         #[label("Unexpected end of file")]
         span: SourceSpan,
     },
+}
+
+#[derive(Error, Debug, Diagnostic)]
+pub enum CompileError {
+    #[error("List is empty")]
+    EmptyList,
+
+    #[error("Unknown symbol")]
+    UnknownSymbol,
+
+    #[error("Incorrect argument count")]
+    IncorrectArgumentCount,
 }
