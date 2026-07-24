@@ -62,10 +62,11 @@ impl Compiler {
                             self.compile_expr(argument, chunk)?;
                         }
                         chunk.write(crate::OpCode::Add);
+                        Ok(())
                     }
+                    Expr::Symbol(_) => Err(CompileError::UnknownSymbol),
                     _ => todo!(),
                 }
-                Ok(())
             }
         }
     }
