@@ -170,11 +170,12 @@ mod tests {
     #[test]
     fn eval_simple_div_by_zero() {
         let source = "(/ 10 0)";
-        assert!(matches!(
-            eval_source(source),
-            Err(RuntimeError::DivideByZero {
+        let error = eval_source(source).unwrap_err();
+        assert_eq!(
+            error,
+            RuntimeError::DivideByZero {
                 numerator: Value::Integer(10)
-            })
-        ))
+            }
+        )
     }
 }

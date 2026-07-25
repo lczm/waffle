@@ -36,7 +36,7 @@ pub struct LexError {
     pub bad_token_span: SourceSpan,
 }
 
-#[derive(Error, Debug, Diagnostic)]
+#[derive(Error, Debug, Diagnostic, PartialEq)]
 pub enum ParseError {
     #[error("Unexpected token")]
     #[diagnostic(code(waffle::unexpected_token))]
@@ -73,7 +73,7 @@ pub enum ParseError {
     },
 }
 
-#[derive(Error, Debug, Diagnostic)]
+#[derive(Error, Debug, Diagnostic, PartialEq)]
 pub enum CompileError {
     #[error("List is empty")]
     EmptyList,
@@ -93,7 +93,7 @@ pub enum CompileError {
     },
 }
 
-#[derive(Error, Debug, Diagnostic)]
+#[derive(Error, Debug, Diagnostic, PartialEq)]
 pub enum RuntimeError {
     #[error("Indexing into a chunk constants with an invalid index")]
     InvalidConstantIndex,
