@@ -112,4 +112,11 @@ pub enum RuntimeError {
 
     #[error("Attempted to divide {numerator} by zero")]
     DivideByZero { numerator: Value },
+
+    #[error("Integer overflow while evaluating {lhs} {operator} {rhs}")]
+    IntegerOverflow {
+        operator: String,
+        lhs: i64,
+        rhs: i64,
+    },
 }

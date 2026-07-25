@@ -25,7 +25,15 @@ impl VM {
                     let rhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
                     let lhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
                     let result = match (lhs, rhs) {
-                        (Value::Integer(lhs), Value::Integer(rhs)) => Value::Integer(lhs + rhs),
+                        (Value::Integer(lhs), Value::Integer(rhs)) => {
+                            let result =
+                                lhs.checked_add(rhs).ok_or(RuntimeError::IntegerOverflow {
+                                    operator: "+".into(),
+                                    lhs,
+                                    rhs,
+                                })?;
+                            Value::Integer(result)
+                        }
                         (Value::Float(lhs), Value::Float(rhs)) => Value::Float(lhs + rhs),
                         (lhs, rhs) => {
                             return Err(RuntimeError::TypeError {
@@ -41,7 +49,15 @@ impl VM {
                     let rhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
                     let lhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
                     let result = match (lhs, rhs) {
-                        (Value::Integer(lhs), Value::Integer(rhs)) => Value::Integer(lhs - rhs),
+                        (Value::Integer(lhs), Value::Integer(rhs)) => {
+                            let result =
+                                lhs.checked_sub(rhs).ok_or(RuntimeError::IntegerOverflow {
+                                    operator: "-".into(),
+                                    lhs,
+                                    rhs,
+                                })?;
+                            Value::Integer(result)
+                        }
                         (Value::Float(lhs), Value::Float(rhs)) => Value::Float(lhs - rhs),
                         (lhs, rhs) => {
                             return Err(RuntimeError::TypeError {
@@ -57,7 +73,15 @@ impl VM {
                     let rhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
                     let lhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
                     let result = match (lhs, rhs) {
-                        (Value::Integer(lhs), Value::Integer(rhs)) => Value::Integer(lhs * rhs),
+                        (Value::Integer(lhs), Value::Integer(rhs)) => {
+                            let result =
+                                lhs.checked_mul(rhs).ok_or(RuntimeError::IntegerOverflow {
+                                    operator: "*".into(),
+                                    lhs,
+                                    rhs,
+                                })?;
+                            Value::Integer(result)
+                        }
                         (Value::Float(lhs), Value::Float(rhs)) => Value::Float(lhs * rhs),
                         (lhs, rhs) => {
                             return Err(RuntimeError::TypeError {
@@ -78,7 +102,15 @@ impl VM {
                                 numerator: Value::Integer(lhs),
                             });
                         }
-                        (Value::Integer(lhs), Value::Integer(rhs)) => Value::Integer(lhs / rhs),
+                        (Value::Integer(lhs), Value::Integer(rhs)) => {
+                            let result =
+                                lhs.checked_div(rhs).ok_or(RuntimeError::IntegerOverflow {
+                                    operator: "/".into(),
+                                    lhs,
+                                    rhs,
+                                })?;
+                            Value::Integer(result)
+                        }
                         (Value::Float(lhs), Value::Float(0.0)) => {
                             return Err(RuntimeError::DivideByZero {
                                 numerator: Value::Float(lhs),
