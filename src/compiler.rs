@@ -56,12 +56,19 @@ impl Compiler {
                 let (head, arguments) = exprs.split_first().ok_or(CompileError::EmptyList)?;
 
                 match head {
-                    Expr::Symbol(operator) if operator == "+" => {
+                    Expr::Symbol(operator) => {
+                        let opcode = match operator.as_str() {
+                            "+" => bytecode::OpCode::Add,
+                            "-" => bytecode::OpCode::Sub,
+                            "*" => bytecode::OpCode::Mul,
+                            "/" => bytecode::OpCode::Div,
+                            _ => return Err(CompileError::UnknownSymbol),
+                        };
                         let expected_argument_count = 2;
                         let parsed_argument_count = arguments.len();
                         if expected_argument_count != parsed_argument_count {
                             return Err(CompileError::IncorrectArgumentCount {
-                                operator: "+".into(),
+                                operator: operator.into(),
                                 expected_count: expected_argument_count,
                                 parsed_count: parsed_argument_count,
                             });
@@ -69,58 +76,9 @@ impl Compiler {
                         for argument in arguments {
                             self.compile_expr(argument, chunk)?;
                         }
-                        chunk.write(bytecode::OpCode::Add);
+                        chunk.write(opcode);
                         Ok(())
                     }
-                    Expr::Symbol(operator) if operator == "-" => {
-                        let expected_argument_count = 2;
-                        let parsed_argument_count = arguments.len();
-                        if expected_argument_count != parsed_argument_count {
-                            return Err(CompileError::IncorrectArgumentCount {
-                                operator: "-".into(),
-                                expected_count: expected_argument_count,
-                                parsed_count: parsed_argument_count,
-                            });
-                        }
-                        for argument in arguments {
-                            self.compile_expr(argument, chunk)?;
-                        }
-                        chunk.write(bytecode::OpCode::Sub);
-                        Ok(())
-                    }
-                    Expr::Symbol(operator) if operator == "*" => {
-                        let expected_argument_count = 2;
-                        let parsed_argument_count = arguments.len();
-                        if expected_argument_count != parsed_argument_count {
-                            return Err(CompileError::IncorrectArgumentCount {
-                                operator: "*".into(),
-                                expected_count: expected_argument_count,
-                                parsed_count: parsed_argument_count,
-                            });
-                        }
-                        for argument in arguments {
-                            self.compile_expr(argument, chunk)?;
-                        }
-                        chunk.write(bytecode::OpCode::Mul);
-                        Ok(())
-                    }
-                    Expr::Symbol(operator) if operator == "/" => {
-                        let expected_argument_count = 2;
-                        let parsed_argument_count = arguments.len();
-                        if expected_argument_count != parsed_argument_count {
-                            return Err(CompileError::IncorrectArgumentCount {
-                                operator: "/".into(),
-                                expected_count: expected_argument_count,
-                                parsed_count: parsed_argument_count,
-                            });
-                        }
-                        for argument in arguments {
-                            self.compile_expr(argument, chunk)?;
-                        }
-                        chunk.write(bytecode::OpCode::Div);
-                        Ok(())
-                    }
-                    Expr::Symbol(_) => Err(CompileError::UnknownSymbol),
                     _ => todo!(),
                 }
             }
