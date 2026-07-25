@@ -21,9 +21,9 @@ fn main() -> miette::Result<()> {
     // parse each of them at once
     let expressions = parser.parse_program().map_err(miette::Report::new)?;
 
-    for expression in &expressions {
-        println!("Parsed: {expression:#?}");
-    }
+    // for expression in &expressions {
+    //     println!("Parsed: {expression:#?}");
+    // }
 
     let mut compiler = Compiler::new();
     let chunk = compiler
