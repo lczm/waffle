@@ -36,7 +36,11 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub fn has_more(&mut self) -> bool {
+    pub fn parse_program(&mut self) -> Result<Vec<Expr>, AppError> {
+        std::iter::from_fn(|| self.has_more().then(|| self.parse_expr())).collect()
+    }
+
+    fn has_more(&mut self) -> bool {
         self.iter.peek().is_some()
     }
 

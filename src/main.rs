@@ -1,6 +1,6 @@
 use crate::bytecode::print_chunk;
 use crate::compiler::Compiler;
-use crate::parser::{Expr, Parser};
+use crate::parser::Parser;
 use crate::vm::VM;
 
 mod bytecode;
@@ -19,10 +19,7 @@ fn main() -> miette::Result<()> {
     let mut parser = Parser::new(&source);
     // a program is a list of expressions
     // parse each of them at once
-    let expressions: Vec<Expr> =
-        std::iter::from_fn(|| parser.has_more().then(|| parser.parse_expr()))
-            .collect::<Result<Vec<Expr>, _>>()
-            .map_err(miette::Report::new)?;
+    let expressions = parser.parse_program().map_err(miette::Report::new)?;
 
     // for expression in expressions {
     //     println!("Parsed: {expression:#?}");

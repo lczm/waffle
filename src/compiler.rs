@@ -98,11 +98,7 @@ mod tests {
 
     fn parse_source(source: &str) -> Vec<Expr> {
         let mut parser = Parser::new(source);
-        let expressions: Vec<Expr> =
-            std::iter::from_fn(|| parser.has_more().then(|| parser.parse_expr()))
-                .collect::<Result<Vec<Expr>, _>>()
-                .unwrap();
-        expressions
+        parser.parse_program().unwrap()
     }
 
     #[test]
