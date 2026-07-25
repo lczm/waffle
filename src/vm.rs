@@ -104,3 +104,77 @@ impl VM {
         Ok(top)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::assert_eq;
+
+    use crate::{
+        bytecode::{Chunk, Value},
+        compiler::Compiler,
+        errors::RuntimeError,
+        parser::{Expr, Parser},
+        vm::VM,
+    };
+
+    fn parse_source(source: &str) -> Vec<Expr> {
+        let mut parser = Parser::new(source);
+        let expressions: Vec<Expr> =
+            std::iter::from_fn(|| parser.has_more().then(|| parser.parse_expr()))
+                .collect::<Result<Vec<Expr>, _>>()
+                .unwrap();
+        expressions
+    }
+
+    fn compile_source(source: &str) -> Chunk {
+        let mut compiler = Compiler::new();
+        compiler.compile(&parse_source(source)).unwrap()
+    }
+
+    fn eval_source(source: &str) -> Result<Value, RuntimeError> {
+        let chunk = compile_source(source);
+        let mut vm = VM::new();
+        vm.eval(&chunk)
+    }
+
+    #[test]
+    fn eval_simple_add() {
+        let source = "(+ 1 2)";
+        assert_eq!(eval_source(source).unwrap(), Value::Integer(3))
+    }
+
+    #[test]
+    fn eval_simple_sub() {
+        let source = "(- 10 2)";
+        assert_eq!(eval_source(source).unwrap(), Value::Integer(8))
+    }
+
+    #[test]
+    fn eval_simple_sub2() {
+        let source = "(- 10 100)";
+        assert_eq!(eval_source(source).unwrap(), Value::Integer(-90))
+    }
+
+    #[test]
+    fn eval_simple_mul() {
+        let source = "(* 5 5)";
+        assert_eq!(eval_source(source).unwrap(), Value::Integer(25))
+    }
+
+    #[test]
+    fn eval_simple_div() {
+        let source = "(/ 10 2)";
+        assert_eq!(eval_source(source).unwrap(), Value::Integer(5))
+    }
+
+    #[test]
+    fn eval_simple_div_by_zero() {
+        let source = "(/ 10 0)";
+        assert!(matches!(
+            eval_source(source),
+            Err(RuntimeError::DivideByZero {
+                numerator: Value::Integer(10)
+            })
+        ))
+    }
+}
