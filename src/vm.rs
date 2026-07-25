@@ -204,4 +204,18 @@ mod tests {
             }
         )
     }
+
+    #[test]
+    fn errors_on_integer_addition_overflow() {
+        let source = format!("(+ {} 1)", i64::MAX);
+        let error = eval_source(&source).unwrap_err();
+        assert_eq!(
+            error,
+            RuntimeError::IntegerOverflow {
+                operator: "+".into(),
+                lhs: i64::MAX,
+                rhs: 1,
+            }
+        );
+    }
 }
