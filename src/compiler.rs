@@ -1,7 +1,9 @@
 use crate::{
-    Chunk,
-    OpCode::Constant,
-    Value::{Boolean, Float, Integer, String},
+    bytecode::{
+        self, Chunk,
+        OpCode::Constant,
+        Value::{Boolean, Float, Integer, String},
+    },
     errors::CompileError,
     parser::Expr,
 };
@@ -67,7 +69,7 @@ impl Compiler {
                         for argument in arguments {
                             self.compile_expr(argument, chunk)?;
                         }
-                        chunk.write(crate::OpCode::Add);
+                        chunk.write(bytecode::OpCode::Add);
                         Ok(())
                     }
                     Expr::Symbol(operator) if operator == "-" => {
@@ -83,7 +85,7 @@ impl Compiler {
                         for argument in arguments {
                             self.compile_expr(argument, chunk)?;
                         }
-                        chunk.write(crate::OpCode::Sub);
+                        chunk.write(bytecode::OpCode::Sub);
                         Ok(())
                     }
                     Expr::Symbol(operator) if operator == "*" => {
@@ -99,7 +101,7 @@ impl Compiler {
                         for argument in arguments {
                             self.compile_expr(argument, chunk)?;
                         }
-                        chunk.write(crate::OpCode::Mul);
+                        chunk.write(bytecode::OpCode::Mul);
                         Ok(())
                     }
                     Expr::Symbol(operator) if operator == "/" => {
@@ -115,7 +117,7 @@ impl Compiler {
                         for argument in arguments {
                             self.compile_expr(argument, chunk)?;
                         }
-                        chunk.write(crate::OpCode::Div);
+                        chunk.write(bytecode::OpCode::Div);
                         Ok(())
                     }
                     Expr::Symbol(_) => Err(CompileError::UnknownSymbol),
@@ -129,8 +131,8 @@ impl Compiler {
 #[cfg(test)]
 mod tests {
     use crate::{
-        OpCode,
-        Value::Integer,
+        bytecode::OpCode,
+        bytecode::Value::Integer,
         parser::{Expr, Parser},
     };
 

@@ -14,6 +14,10 @@ pub enum AppError {
     #[error(transparent)]
     #[diagnostic(transparent)]
     Compiler(#[from] CompileError),
+
+    #[error(transparent)]
+    #[diagnostic(transparent)]
+    VM(#[from] RuntimeError),
 }
 
 #[derive(Error, Debug, Diagnostic)]
@@ -85,4 +89,13 @@ pub enum CompileError {
         expected_count: usize,
         parsed_count: usize,
     },
+}
+
+#[derive(Error, Debug, Diagnostic)]
+pub enum RuntimeError {
+    #[error("Indexing into a chunk constants with an invalid index")]
+    InvalidConstantIndex,
+
+    #[error("Attempted to pop off the VM stack when stack is empty")]
+    StackPopEmpty,
 }
