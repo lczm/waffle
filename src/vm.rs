@@ -25,12 +25,16 @@ impl VM {
                     // pop the top 2
                     let rhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
                     let lhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
-                    // todo : add a catch all runtimeerror for invalid types
-                    // error should show what types they are
                     let result = match (rhs, lhs) {
                         (Value::Integer(rhs), Value::Integer(lhs)) => Value::Integer(lhs + rhs),
                         (Value::Float(rhs), Value::Float(lhs)) => Value::Float(lhs + rhs),
-                        _ => todo!(),
+                        (rhs, lhs) => {
+                            return Err(RuntimeError::TypeError {
+                                operator: "+".into(),
+                                received_type_lhs: lhs.type_name().into(),
+                                received_type_rhs: rhs.type_name().into(),
+                            });
+                        }
                     };
                     self.stack.push(result);
                 }

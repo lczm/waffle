@@ -12,7 +12,7 @@ mod vm;
 
 fn main() -> miette::Result<()> {
     // let source = "(+ 1 (* 2 5))".to_string();
-    let source = "(+ 1 2)".to_string();
+    let source = "(+ 1 2.0)".to_string();
     // let function_source = "(defun add (a b) (+ a b))".to_string();
     // let function_invalid_source = "(defun add (a b) (+ a; b))".to_string();
 

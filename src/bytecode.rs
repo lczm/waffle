@@ -19,6 +19,18 @@ impl std::fmt::Display for Value {
     }
 }
 
+impl Value {
+    pub fn type_name(&self) -> &'static str {
+        match self {
+            Value::Integer(_) => "integer",
+            Value::Float(_) => "float",
+            Value::Boolean(_) => "boolean",
+            Value::String(_) => "string",
+            Value::Unit => "unit",
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum OpCode {
     Constant(usize),

@@ -98,4 +98,13 @@ pub enum RuntimeError {
 
     #[error("Attempted to pop off the VM stack when stack is empty")]
     StackPopEmpty,
+
+    #[error(
+        "operator {operator} requires two integers or two floats, but received {received_type_lhs} {operator} {received_type_rhs}"
+    )]
+    TypeError {
+        operator: String,
+        received_type_lhs: String,
+        received_type_rhs: String,
+    },
 }
