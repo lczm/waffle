@@ -107,8 +107,6 @@ impl VM {
 
 #[cfg(test)]
 mod tests {
-    use std::assert_eq;
-
     use crate::{
         bytecode::{Chunk, Value},
         compiler::Compiler,
@@ -146,7 +144,7 @@ mod tests {
     }
 
     #[test]
-    fn eval_simple_sub2() {
+    fn eval_simple_sub_with_negative_result() {
         let source = "(- 10 100)";
         assert_eq!(eval_source(source).unwrap(), Value::Integer(-90))
     }
