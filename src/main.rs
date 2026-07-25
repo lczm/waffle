@@ -12,7 +12,7 @@ mod vm;
 
 fn main() -> miette::Result<()> {
     // let source = "(+ 1 (* 2 5))".to_string();
-    let source = "(+ 1 2.0)".to_string();
+    let source = "(+ 1 (+ 2 3))".to_string();
     // let function_source = "(defun add (a b) (+ a b))".to_string();
     // let function_invalid_source = "(defun add (a b) (+ a; b))".to_string();
 
@@ -21,9 +21,9 @@ fn main() -> miette::Result<()> {
     // parse each of them at once
     let expressions = parser.parse_program().map_err(miette::Report::new)?;
 
-    // for expression in expressions {
-    //     println!("Parsed: {expression:#?}");
-    // }
+    for expression in &expressions {
+        println!("Parsed: {expression:#?}");
+    }
 
     let mut compiler = Compiler::new();
     let chunk = compiler

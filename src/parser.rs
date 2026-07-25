@@ -7,7 +7,7 @@ use crate::{
     lexer::Token,
 };
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Expr {
     Symbol(String),
     Integer(i64),
@@ -158,5 +158,37 @@ mod tests {
             parser.parse_expr(),
             Err(AppError::Parser(ParseError::UnexpectedClosingParen { .. }))
         ));
+    }
+
+    #[test]
+    fn parse_simple_list() {
+        let mut parser = Parser::new("(+ 1 2)");
+        assert_eq!(
+            parser.parse_expr().unwrap(),
+            Expr::List(vec![
+                Expr::Symbol("+".into()),
+                Expr::Integer(1),
+                Expr::Integer(2),
+            ])
+        );
+        assert!(!parser.has_more());
+    }
+
+    #[test]
+    fn parse_nested_list() {
+        let mut parser = Parser::new("(+ 1 (+ 2 3))");
+        assert_eq!(
+            parser.parse_expr().unwrap(),
+            Expr::List(vec![
+                Expr::Symbol("+".into()),
+                Expr::Integer(1),
+                Expr::List(vec![
+                    Expr::Symbol("+".into()),
+                    Expr::Integer(2),
+                    Expr::Integer(3),
+                ]),
+            ])
+        );
+        assert!(!parser.has_more());
     }
 }
