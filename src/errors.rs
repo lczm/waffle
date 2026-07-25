@@ -1,6 +1,8 @@
 use miette::{Diagnostic, NamedSource, SourceSpan};
 use thiserror::Error;
 
+use crate::bytecode::Value;
+
 #[derive(Error, Debug, Diagnostic)]
 pub enum AppError {
     #[error(transparent)]
@@ -107,4 +109,7 @@ pub enum RuntimeError {
         received_type_lhs: String,
         received_type_rhs: String,
     },
+
+    #[error("Attempted to divide {numerator} by zero")]
+    DivideByZero { numerator: Value },
 }

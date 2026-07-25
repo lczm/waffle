@@ -22,13 +22,12 @@ impl VM {
                     self.stack.push(value.clone());
                 }
                 OpCode::Add => {
-                    // pop the top 2
                     let rhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
                     let lhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
-                    let result = match (rhs, lhs) {
-                        (Value::Integer(rhs), Value::Integer(lhs)) => Value::Integer(lhs + rhs),
-                        (Value::Float(rhs), Value::Float(lhs)) => Value::Float(lhs + rhs),
-                        (rhs, lhs) => {
+                    let result = match (lhs, rhs) {
+                        (Value::Integer(lhs), Value::Integer(rhs)) => Value::Integer(lhs + rhs),
+                        (Value::Float(lhs), Value::Float(rhs)) => Value::Float(lhs + rhs),
+                        (lhs, rhs) => {
                             return Err(RuntimeError::TypeError {
                                 operator: "+".into(),
                                 received_type_lhs: lhs.type_name().into(),
@@ -38,15 +37,69 @@ impl VM {
                     };
                     self.stack.push(result);
                 }
-                OpCode::Sub => todo!(),
-                OpCode::Mul => todo!(),
-                OpCode::Div => todo!(),
+                OpCode::Sub => {
+                    let rhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
+                    let lhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
+                    let result = match (lhs, rhs) {
+                        (Value::Integer(lhs), Value::Integer(rhs)) => Value::Integer(lhs - rhs),
+                        (Value::Float(lhs), Value::Float(rhs)) => Value::Float(lhs - rhs),
+                        (lhs, rhs) => {
+                            return Err(RuntimeError::TypeError {
+                                operator: "-".into(),
+                                received_type_lhs: lhs.type_name().into(),
+                                received_type_rhs: rhs.type_name().into(),
+                            });
+                        }
+                    };
+                    self.stack.push(result);
+                }
+                OpCode::Mul => {
+                    let rhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
+                    let lhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
+                    let result = match (lhs, rhs) {
+                        (Value::Integer(lhs), Value::Integer(rhs)) => Value::Integer(lhs * rhs),
+                        (Value::Float(lhs), Value::Float(rhs)) => Value::Float(lhs * rhs),
+                        (lhs, rhs) => {
+                            return Err(RuntimeError::TypeError {
+                                operator: "*".into(),
+                                received_type_lhs: lhs.type_name().into(),
+                                received_type_rhs: rhs.type_name().into(),
+                            });
+                        }
+                    };
+                    self.stack.push(result);
+                }
+                OpCode::Div => {
+                    let rhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
+                    let lhs = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
+                    let result = match (lhs, rhs) {
+                        (Value::Integer(lhs), Value::Integer(0)) => {
+                            return Err(RuntimeError::DivideByZero {
+                                numerator: Value::Integer(lhs),
+                            });
+                        }
+                        (Value::Integer(lhs), Value::Integer(rhs)) => Value::Integer(lhs / rhs),
+                        (Value::Float(lhs), Value::Float(0.0)) => {
+                            return Err(RuntimeError::DivideByZero {
+                                numerator: Value::Float(lhs),
+                            });
+                        }
+                        (Value::Float(lhs), Value::Float(rhs)) => Value::Float(lhs / rhs),
+                        (lhs, rhs) => {
+                            return Err(RuntimeError::TypeError {
+                                operator: "/".into(),
+                                received_type_lhs: lhs.type_name().into(),
+                                received_type_rhs: rhs.type_name().into(),
+                            });
+                        }
+                    };
+                    self.stack.push(result);
+                }
                 OpCode::Pop => todo!(),
                 OpCode::Print => todo!(),
             }
         }
 
-        // todo : the value popped is whatever is left on the stack
         let top = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
         Ok(top)
     }
