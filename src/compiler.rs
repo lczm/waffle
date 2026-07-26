@@ -79,6 +79,7 @@ impl Compiler {
                         chunk.write(opcode);
                         Ok(())
                     }
+                    // todo : compile error here
                     _ => todo!(),
                 }
             }
