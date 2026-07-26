@@ -1,11 +1,31 @@
+use std::io::{self, Write};
+
 use waffle::interpret;
 
-fn main() -> miette::Result<()> {
-    // let source = "(+ 1 (* 2 5))"
-    let source = "(+ 1 (+ 2 3))";
-    // let function_source = "(defun add (a b) (+ a b))";
-    // let function_invalid_source = "(defun add (a b) (+ a; b))";
+fn main() -> io::Result<()> {
+    // repl
+    loop {
+        print!("waffle> ");
+        io::stdout().flush()?;
 
-    println!("{}", interpret(source)?);
+        let mut input = String::new();
+        let bytes_read = io::stdin().read_line(&mut input)?;
+
+        // ctrl-d on linux/mac to break out of the repl
+        if bytes_read == 0 {
+            println!();
+            break;
+        }
+
+        if input.trim().is_empty() {
+            continue;
+        }
+
+        match interpret(&input) {
+            Ok(value) => println!("{value}"),
+            Err(error) => eprintln!("{error:?}"),
+        }
+    }
+
     Ok(())
 }

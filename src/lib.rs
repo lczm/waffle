@@ -1,4 +1,3 @@
-use crate::bytecode::print_chunk;
 use crate::compiler::Compiler;
 use crate::parser::Parser;
 use crate::vm::VM;
@@ -24,7 +23,7 @@ pub fn interpret(source: &str) -> miette::Result<String> {
     let chunk = compiler
         .compile(&expressions)
         .map_err(miette::Report::new)?;
-    print_chunk(&chunk);
+    // print_chunk(&chunk);
 
     let mut vm = VM::new();
     let result = vm.eval(&chunk).map_err(miette::Report::new)?;
