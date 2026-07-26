@@ -29,7 +29,5 @@ pub fn interpret(source: &str) -> miette::Result<String> {
     let mut vm = VM::new();
     let result = vm.eval(&chunk).map_err(miette::Report::new)?;
 
-    println!("{result}");
-
     Ok(result.to_string())
 }
