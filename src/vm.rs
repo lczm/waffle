@@ -10,6 +10,16 @@ impl VM {
     }
 
     pub fn eval(&mut self, chunk: &Chunk) -> Result<Value, RuntimeError> {
+        // original stack length
+        let original_stack_length = self.stack.len();
+        let result = self.run(chunk);
+        // whatever the result is, before we return the Result<>
+        // we truncate the entire stack back to the original length, to remove all leftovers
+        self.stack.truncate(original_stack_length);
+        result
+    }
+
+    fn run(&mut self, chunk: &Chunk) -> Result<Value, RuntimeError> {
         let mut ip = 0;
         while let Some(opcode) = chunk.code.get(ip) {
             ip += 1;
@@ -214,6 +224,26 @@ mod tests {
             error,
             RuntimeError::DivideByZero {
                 numerator: Value::Integer(10)
+            }
+        )
+    }
+
+    #[test]
+    fn eval_restores_stack_after_runtime_error() {
+        let source = "(+ 1 (/ 2 0))";
+        let chunk = compile_source(source);
+        let mut vm = VM::new();
+
+        // the stack must be empty, after division by zero
+        assert!(vm.eval(&chunk).is_err());
+        assert!(vm.stack.is_empty());
+
+        // double check that this is a divisoin by zero error
+        let error = eval_source(source).unwrap_err();
+        assert_eq!(
+            error,
+            RuntimeError::DivideByZero {
+                numerator: Value::Integer(2)
             }
         )
     }
