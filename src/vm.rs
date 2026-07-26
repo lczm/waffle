@@ -233,13 +233,10 @@ mod tests {
         let source = "(+ 1 (/ 2 0))";
         let chunk = compile_source(source);
         let mut vm = VM::new();
+        let error = vm.eval(&chunk).unwrap_err();
 
         // the stack must be empty, after division by zero
-        assert!(vm.eval(&chunk).is_err());
         assert!(vm.stack.is_empty());
-
-        // double check that this is a divisoin by zero error
-        let error = eval_source(source).unwrap_err();
         assert_eq!(
             error,
             RuntimeError::DivideByZero {
