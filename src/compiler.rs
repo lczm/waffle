@@ -1,7 +1,6 @@
 use crate::{
     bytecode::{
         self, Chunk,
-        OpCode::Constant,
         Value::{Boolean, Float, Integer, String},
     },
     errors::CompileError,
@@ -19,8 +18,14 @@ impl Compiler {
 
     pub fn compile(&mut self, expressions: &[Expr]) -> Result<Chunk, CompileError> {
         let mut chunk = Chunk::default();
-        for expr in expressions {
+        for (index, expr) in expressions.iter().enumerate() {
             self.compile_expr(expr, &mut chunk)?;
+
+            // if its not the last expression, then emit a pop
+            let has_more_expressions = index + 1 < expressions.len();
+            if has_more_expressions {
+                chunk.write(bytecode::OpCode::Pop);
+            }
         }
         Ok(chunk)
     }
@@ -31,17 +36,17 @@ impl Compiler {
             Expr::Symbol(_) => Err(CompileError::UnknownSymbol),
             Expr::Integer(i) => {
                 let index = chunk.add_constant(Integer(*i));
-                chunk.write(Constant(index));
+                chunk.write(bytecode::OpCode::Constant(index));
                 Ok(())
             }
             Expr::Float(f) => {
                 let index = chunk.add_constant(Float(*f));
-                chunk.write(Constant(index));
+                chunk.write(bytecode::OpCode::Constant(index));
                 Ok(())
             }
             Expr::Boolean(b) => {
                 let index = chunk.add_constant(Boolean(*b));
-                chunk.write(Constant(index));
+                chunk.write(bytecode::OpCode::Constant(index));
                 Ok(())
             }
             Expr::String(s) => {
@@ -49,7 +54,7 @@ impl Compiler {
                 // so we can just clone it to own it
                 let s = s.clone();
                 let index = chunk.add_constant(String(s));
-                chunk.write(Constant(index));
+                chunk.write(bytecode::OpCode::Constant(index));
                 Ok(())
             }
             Expr::List(exprs) => {
