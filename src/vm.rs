@@ -127,7 +127,9 @@ impl VM {
                     };
                     self.stack.push(result);
                 }
-                OpCode::Pop => todo!(),
+                OpCode::Pop => {
+                    self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
+                }
                 OpCode::Print => todo!(),
             }
         }
@@ -167,6 +169,17 @@ mod tests {
     fn eval_simple_add() {
         let source = "(+ 1 2)";
         assert_eq!(eval_source(source).unwrap(), Value::Integer(3))
+    }
+
+    #[test]
+    fn eval_discards_non_final_top_level_values() {
+        let chunk = compile_source("1 2");
+        let mut vm = VM::new();
+
+        // pops and returns 2
+        assert_eq!(vm.eval(&chunk).unwrap(), Value::Integer(2));
+        // and that there isnt a leftover 1 left within the stack
+        assert!(vm.stack.is_empty());
     }
 
     #[test]
