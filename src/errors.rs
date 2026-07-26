@@ -81,7 +81,7 @@ pub enum CompileError {
     #[error("Unknown symbol")]
     UnknownSymbol,
 
-    #[error("operator {operator} expected {expected_count} arguments, but received {parsed_count}")]
+    #[error("Operator {operator} expected {expected_count} arguments, but received {parsed_count}")]
     #[diagnostic(
         code(waffle::incorrect_argument_count),
         help("Provide exactly {expected_count} arguments to `{operator}`")
@@ -91,6 +91,9 @@ pub enum CompileError {
         expected_count: usize,
         parsed_count: usize,
     },
+
+    #[error("The first expression in a function call must be a symbol")]
+    InvalidCallTarget,
 }
 
 #[derive(Error, Debug, Diagnostic, PartialEq)]

@@ -84,8 +84,7 @@ impl Compiler {
                         chunk.write(opcode);
                         Ok(())
                     }
-                    // todo : compile error here
-                    _ => todo!(),
+                    _ => Err(CompileError::InvalidCallTarget),
                 }
             }
         }
@@ -94,9 +93,11 @@ impl Compiler {
 
 #[cfg(test)]
 mod tests {
+    use std::assert_eq;
+
     use crate::{
-        bytecode::OpCode,
-        bytecode::Value::Integer,
+        bytecode::{OpCode, Value::Integer},
+        errors::CompileError,
         parser::{Expr, Parser},
     };
 
@@ -194,5 +195,13 @@ mod tests {
                 OpCode::Add
             ]
         ));
+    }
+
+    #[test]
+    fn error_on_invalid_call_target() {
+        let source = "(1 2)";
+        let mut compiler = Compiler::new();
+        let error = compiler.compile(&parse_source(source)).unwrap_err();
+        assert_eq!(error, CompileError::InvalidCallTarget)
     }
 }
