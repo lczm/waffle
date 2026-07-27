@@ -264,6 +264,12 @@ mod tests {
     }
 
     #[test]
+    fn eval_global_variables_with_lookup() {
+        let source = "(define x 10) (+ x 20)";
+        assert_eq!(eval_source(source).unwrap(), Value::Integer(30))
+    }
+
+    #[test]
     fn errors_on_integer_addition_overflow() {
         let source = format!("(+ {} 1)", i64::MAX);
         let error = eval_source(&source).unwrap_err();
