@@ -33,7 +33,10 @@ impl Compiler {
     fn compile_expr(&mut self, expr: &Expr, chunk: &mut Chunk) -> Result<(), CompileError> {
         match expr {
             // get local / global variables
-            Expr::Symbol(_) => Err(CompileError::UnknownSymbol),
+            Expr::Symbol(name) => {
+                chunk.write(bytecode::OpCode::GetGlobal(name.clone()));
+                Ok(())
+            }
             Expr::Integer(i) => {
                 let index = chunk.add_constant(Integer(*i));
                 chunk.write(bytecode::OpCode::Constant(index));
