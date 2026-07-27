@@ -6,7 +6,7 @@ use std::{
 
 use clap::Parser;
 use miette::{IntoDiagnostic, WrapErr};
-use waffle::interpret;
+use waffle::{VM, interpret};
 
 #[derive(Parser)]
 #[command(version, about = "A Lisp bytecode interpreter")]
@@ -38,12 +38,14 @@ fn run_file(path: &Path) -> miette::Result<()> {
     let source = fs::read_to_string(path)
         .into_diagnostic()
         .wrap_err_with(|| format!("failed to read {}", path.display()))?;
-    let value = interpret(&source)?;
+    let mut vm = VM::new();
+    let value = interpret(&mut vm, &source)?;
     println!("{value}");
     Ok(())
 }
 
 fn run_repl() -> io::Result<()> {
+    let mut vm = VM::new();
     loop {
         print!("waffle> ");
         io::stdout().flush()?;
@@ -61,7 +63,7 @@ fn run_repl() -> io::Result<()> {
             continue;
         }
 
-        match interpret(&input) {
+        match interpret(&mut vm, &input) {
             Ok(value) => println!("{value}"),
             Err(error) => eprintln!("{error:?}"),
         }

@@ -1,6 +1,5 @@
 use crate::compiler::Compiler;
 use crate::parser::Parser;
-use crate::vm::VM;
 
 mod bytecode;
 mod compiler;
@@ -9,7 +8,9 @@ mod lexer;
 mod parser;
 mod vm;
 
-pub fn interpret(source: &str) -> miette::Result<String> {
+pub use vm::VM;
+
+pub fn interpret(vm: &mut VM, source: &str) -> miette::Result<String> {
     let mut parser = Parser::new(source);
     // a program is a list of expressions
     // parse each of them at once
@@ -25,7 +26,6 @@ pub fn interpret(source: &str) -> miette::Result<String> {
         .map_err(miette::Report::new)?;
     // print_chunk(&chunk);
 
-    let mut vm = VM::new();
     let result = vm.eval(&chunk).map_err(miette::Report::new)?;
 
     Ok(result.to_string())
