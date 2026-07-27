@@ -41,8 +41,8 @@ pub enum OpCode {
     Mul,
     Div,
     // variables
-    DefineGlobal,
-    GetGlobal,
+    DefineGlobal(String),
+    GetGlobal(String),
     // for the vm stack
     Pop,
     // convenience

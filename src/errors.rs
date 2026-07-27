@@ -94,6 +94,9 @@ pub enum CompileError {
 
     #[error("The first expression in a function call must be a symbol")]
     InvalidCallTarget,
+
+    #[error("`define` expected a symbol as its name, but received {found}")]
+    InvalidDefinitionName { found: String },
 }
 
 #[derive(Error, Debug, Diagnostic, PartialEq)]

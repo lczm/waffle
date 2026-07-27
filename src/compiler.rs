@@ -61,8 +61,8 @@ impl Compiler {
                 let (head, arguments) = exprs.split_first().ok_or(CompileError::EmptyList)?;
 
                 match head {
-                    Expr::Symbol(operator) => {
-                        match operator.as_str() {
+                    Expr::Symbol(name) => {
+                        match name.as_str() {
                             "+" => {
                                 self.compile_binary(arguments, "+", bytecode::OpCode::Add, chunk)?
                             }
@@ -75,6 +75,7 @@ impl Compiler {
                             "/" => {
                                 self.compile_binary(arguments, "/", bytecode::OpCode::Div, chunk)?
                             }
+                            "define" => self.compile_define(arguments, "define", chunk)?,
                             _ => return Err(CompileError::UnknownSymbol),
                         };
                         Ok(())
@@ -108,7 +109,38 @@ impl Compiler {
         Ok(())
     }
 
-    fn compile_define() {}
+    fn compile_define(
+        &mut self,
+        arguments: &[Expr],
+        operator: &str,
+        chunk: &mut Chunk,
+    ) -> Result<(), CompileError> {
+        let [name_expr, value_expr] = arguments else {
+            return Err(CompileError::IncorrectArgumentCount {
+                operator: operator.into(),
+                expected_count: 2,
+                parsed_count: arguments.len(),
+            });
+        };
+
+        let name = match name_expr {
+            Expr::Symbol(name) => name.clone(),
+            invalid_found => {
+                return Err(CompileError::InvalidDefinitionName {
+                    found: format!("{invalid_found:?}"),
+                });
+            }
+        };
+
+        // emit the expr that we are defining the variable to
+        // e.g. (define x {some_expr})
+        // we compile some_expr, which and after interpreting the operations
+        // it will leave it's value on the top of the stack, in which we call
+        // define_global on it
+        self.compile_expr(value_expr, chunk)?;
+        chunk.write(bytecode::OpCode::DefineGlobal(name));
+        Ok(())
+    }
 }
 
 #[cfg(test)]
