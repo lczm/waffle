@@ -102,6 +102,8 @@ pub fn print_chunk(chunk: &Chunk) {
             OpCode::Sub => println!("SUB"),
             OpCode::Mul => println!("MUL"),
             OpCode::Div => println!("DIV"),
+            OpCode::DefineGlobal(name) => println!("DEFINE_GLOBAL {name}"),
+            OpCode::GetGlobal(name) => println!("GET_GLOBAL {name}"),
             OpCode::Pop => println!("POP"),
             OpCode::Print => println!("PRINT"),
         }

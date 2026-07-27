@@ -1,12 +1,18 @@
+use std::collections::HashMap;
+
 use crate::{bytecode::Chunk, bytecode::OpCode, bytecode::Value, errors::RuntimeError};
 
 pub struct VM {
     stack: Vec<Value>,
+    globals: HashMap<String, Value>,
 }
 
 impl VM {
     pub fn new() -> Self {
-        Self { stack: Vec::new() }
+        Self {
+            stack: Vec::new(),
+            globals: HashMap::new(),
+        }
     }
 
     pub fn eval(&mut self, chunk: &Chunk) -> Result<Value, RuntimeError> {
@@ -136,6 +142,18 @@ impl VM {
                         }
                     };
                     self.stack.push(result);
+                }
+                OpCode::DefineGlobal(name) => {
+                    let value = self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
+                    self.globals.insert(name.into(), value);
+                    // always push unit onto the stack so that if its the last, the vm pops off unit
+                    self.stack.push(Value::Unit);
+                }
+                OpCode::GetGlobal(name) => {
+                    let value = self.globals.get(name).cloned().ok_or_else(|| {
+                        RuntimeError::GlobalVariableDoesNotExist { key: name.into() }
+                    })?;
+                    self.stack.push(value);
                 }
                 OpCode::Pop => {
                     self.stack.pop().ok_or(RuntimeError::StackPopEmpty)?;
