@@ -62,26 +62,21 @@ impl Compiler {
 
                 match head {
                     Expr::Symbol(operator) => {
-                        let opcode = match operator.as_str() {
-                            "+" => bytecode::OpCode::Add,
-                            "-" => bytecode::OpCode::Sub,
-                            "*" => bytecode::OpCode::Mul,
-                            "/" => bytecode::OpCode::Div,
+                        match operator.as_str() {
+                            "+" => {
+                                self.compile_binary(arguments, "+", bytecode::OpCode::Add, chunk)?
+                            }
+                            "-" => {
+                                self.compile_binary(arguments, "-", bytecode::OpCode::Sub, chunk)?
+                            }
+                            "*" => {
+                                self.compile_binary(arguments, "*", bytecode::OpCode::Mul, chunk)?
+                            }
+                            "/" => {
+                                self.compile_binary(arguments, "/", bytecode::OpCode::Div, chunk)?
+                            }
                             _ => return Err(CompileError::UnknownSymbol),
                         };
-                        let expected_argument_count = 2;
-                        let parsed_argument_count = arguments.len();
-                        if expected_argument_count != parsed_argument_count {
-                            return Err(CompileError::IncorrectArgumentCount {
-                                operator: operator.into(),
-                                expected_count: expected_argument_count,
-                                parsed_count: parsed_argument_count,
-                            });
-                        }
-                        for argument in arguments {
-                            self.compile_expr(argument, chunk)?;
-                        }
-                        chunk.write(opcode);
                         Ok(())
                     }
                     _ => Err(CompileError::InvalidCallTarget),
@@ -89,6 +84,31 @@ impl Compiler {
             }
         }
     }
+
+    fn compile_binary(
+        &mut self,
+        arguments: &[Expr],
+        operator: &str,
+        opcode: bytecode::OpCode,
+        chunk: &mut Chunk,
+    ) -> Result<(), CompileError> {
+        let expected_argument_count = 2;
+        let parsed_argument_count = arguments.len();
+        if expected_argument_count != parsed_argument_count {
+            return Err(CompileError::IncorrectArgumentCount {
+                operator: operator.into(),
+                expected_count: expected_argument_count,
+                parsed_count: parsed_argument_count,
+            });
+        }
+        for argument in arguments {
+            self.compile_expr(argument, chunk)?;
+        }
+        chunk.write(opcode);
+        Ok(())
+    }
+
+    fn compile_define() {}
 }
 
 #[cfg(test)]

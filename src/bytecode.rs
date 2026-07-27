@@ -40,6 +40,9 @@ pub enum OpCode {
     Sub,
     Mul,
     Div,
+    // variables
+    DefineGlobal,
+    GetGlobal,
     // for the vm stack
     Pop,
     // convenience

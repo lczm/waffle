@@ -111,7 +111,6 @@ impl<'a> Parser<'a> {
                 self.iter.next();
                 Ok(Expr::Boolean(false))
             }
-
             Token::RParen => {
                 let (_, span) = self.iter.next().unwrap();
                 Err(self.make_unexpected_closing_paren_error(span.into()).into())
